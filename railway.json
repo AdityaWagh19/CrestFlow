@@ -1,0 +1,13 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "services": {
+    "backend": {
+      "source": "./backend",
+      "watch": true
+    },
+    "orchestrator": {
+      "source": "./orchestrator",
+      "watch": true
+    }
+  }
+}
