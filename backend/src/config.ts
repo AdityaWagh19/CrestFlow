@@ -14,7 +14,7 @@ function opt(key: string, fallback: string): string {
   return process.env[key] || fallback;
 }
 
-export const PORT            = parseInt(opt("BACKEND_PORT", "3001"));
+export const PORT            = parseInt(process.env.PORT || opt("BACKEND_PORT", "3001"));
 export const JWT_SECRET      = opt("JWT_SECRET", "cadencia-dev-secret-change-in-prod");
 export const JWT_EXPIRY_SEC  = 86400; // 24h
 export const NONCE_EXPIRY_MS = 5 * 60 * 1000; // 5 min
