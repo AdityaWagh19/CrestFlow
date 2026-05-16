@@ -1,0 +1,9 @@
+# Python runtime dependencies
+algosdk>=3.0.0
+python-dotenv>=1.0.0
+
+# Algorand Python (Puya compiler — contract source)
+algorand-python>=2.0.0
+
+# AlgoKit utilities (ABI client, deployment helpers)
+algokit-utils>=3.0.0

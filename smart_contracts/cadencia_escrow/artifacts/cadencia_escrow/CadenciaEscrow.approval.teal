@@ -1,0 +1,1488 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 8 64 712
+    bytecblock 0x00 "admin" "total_locked" "active_orders" "orders" "treasury_address" "paused" "platform_wallet" "total_released" "total_orders" "min_order_amount" "default_lock_duration" 0x02 0x151f7c75 "treasury_app_id"
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/cadencia_escrow/contract.py:41
+    // self.admin = Global.creator_address
+    bytec_1 // "admin"
+    global CreatorAddress
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:42
+    // self.treasury_app_id = UInt64(0)
+    bytec 14 // "treasury_app_id"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:43
+    // self.treasury_address = Global.zero_address
+    bytec 5 // "treasury_address"
+    global ZeroAddress
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:44
+    // self.platform_wallet = Global.zero_address
+    bytec 7 // "platform_wallet"
+    global ZeroAddress
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:45
+    // self.total_locked = UInt64(0)
+    bytec_2 // "total_locked"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:46
+    // self.total_released = UInt64(0)
+    bytec 8 // "total_released"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:47
+    // self.total_orders = UInt64(0)
+    bytec 9 // "total_orders"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:48
+    // self.active_orders = UInt64(0)
+    bytec_3 // "active_orders"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:49
+    // self.min_order_amount = UInt64(5_000_000)  # 5 ALGO
+    bytec 10 // "min_order_amount"
+    pushint 5000000
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:50
+    // self.default_lock_duration = UInt64(100)    # ~5 min
+    bytec 11 // "default_lock_duration"
+    pushint 100
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:51
+    // self.paused = UInt64(0)
+    bytec 6 // "paused"
+    intc_0 // 0
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/cadencia_escrow/contract.py:38
+    // class CadenciaEscrow(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@25
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x1ee69cb5 0x5bb20715 0x0373e2bc 0x3b9e109c 0xb413bfc2 0xf174a139 0x90f310f5 0x4638dc4b 0xf9335242 0x01b19a5c 0xc25f0a37 0x713c8587 0xf0a2ea73 0x208d03b4 0x0178f94b 0x1b529de8 // method "create_order(pay,address,uint64,uint64)void", method "mark_invested(uint64)void", method "mark_redeemed(uint64,uint64)void", method "complete_order(uint64)void", method "cancel_order(uint64)void", method "transfer_to_treasury(uint64)void", method "receive_from_treasury(pay,uint64)void", method "get_order(uint64)(address,address,uint64,uint64,uint64,uint8,bool,uint64)", method "get_escrow_stats()(uint64,uint64,uint64,uint64)", method "is_paused()bool", method "set_treasury(uint64,address)void", method "set_platform_wallet(address)void", method "set_min_order(uint64)void", method "set_default_lock(uint64)void", method "pause()void", method "unpause()void"
+    txna ApplicationArgs 0
+    match create_order mark_invested mark_redeemed complete_order cancel_order transfer_to_treasury receive_from_treasury get_order get_escrow_stats is_paused set_treasury set_platform_wallet set_min_order set_default_lock pause unpause
+    err
+
+main___algopy_default_create@25:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.create_order[routing]() -> void:
+create_order:
+    // smart_contracts/cadencia_escrow/contract.py:56
+    // @arc4.abimethod()
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    cover 2
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/cadencia_escrow/contract.py:64
+    // assert self.paused == UInt64(0), "ESCROW_PAUSED"
+    intc_0 // 0
+    bytec 6 // "paused"
+    app_global_get_ex
+    assert // check self.paused exists
+    !
+    assert // ESCROW_PAUSED
+    // smart_contracts/cadencia_escrow/contract.py:65
+    // assert pay_txn.receiver == Global.current_application_address, "INVALID_PAYMENT"
+    dig 3
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert // INVALID_PAYMENT
+    // smart_contracts/cadencia_escrow/contract.py:66
+    // assert pay_txn.amount > UInt64(0), "ZERO_AMOUNT"
+    dig 3
+    gtxns Amount
+    dup
+    cover 5
+    dup
+    assert // ZERO_AMOUNT
+    // smart_contracts/cadencia_escrow/contract.py:67
+    // assert seller.native != pay_txn.sender, "SELF_ORDER"
+    uncover 4
+    gtxns Sender
+    dup
+    cover 5
+    uncover 4
+    !=
+    assert // SELF_ORDER
+    // smart_contracts/cadencia_escrow/contract.py:68
+    // assert order_id not in self.orders, "DUPLICATE_ORDER"
+    bytec 4 // "orders"
+    uncover 3
+    concat
+    dup
+    cover 3
+    box_len
+    bury 1
+    !
+    assert // DUPLICATE_ORDER
+    // smart_contracts/cadencia_escrow/contract.py:71
+    // eligible = amount >= self.min_order_amount
+    intc_0 // 0
+    bytec 10 // "min_order_amount"
+    app_global_get_ex
+    assert // check self.min_order_amount exists
+    >=
+    swap
+    // smart_contracts/cadencia_escrow/contract.py:73
+    // duration = lock_duration.native
+    btoi
+    dup
+    // smart_contracts/cadencia_escrow/contract.py:74
+    // if duration == UInt64(0):
+    bnz create_order_after_if_else@3
+    // smart_contracts/cadencia_escrow/contract.py:75
+    // duration = self.default_lock_duration
+    intc_0 // 0
+    bytec 11 // "default_lock_duration"
+    app_global_get_ex
+    swap
+    bury 2
+    assert // check self.default_lock_duration exists
+
+create_order_after_if_else@3:
+    // smart_contracts/cadencia_escrow/contract.py:80
+    // amount=arc4.UInt64(amount),
+    dig 4
+    dup
+    itob
+    // smart_contracts/cadencia_escrow/contract.py:81
+    // created_at=arc4.UInt64(Global.round),
+    global Round
+    itob
+    // smart_contracts/cadencia_escrow/contract.py:82
+    // lock_until=arc4.UInt64(Global.round + duration),
+    global Round
+    dig 4
+    +
+    itob
+    // smart_contracts/cadencia_escrow/contract.py:84
+    // invest_eligible=arc4.Bool(eligible),
+    bytec_0 // 0x00
+    intc_0 // 0
+    dig 7
+    setbit
+    // smart_contracts/cadencia_escrow/contract.py:77-86
+    // self.orders[order_id] = OrderRecord(
+    //     buyer=arc4.Address(pay_txn.sender),
+    //     seller=seller,
+    //     amount=arc4.UInt64(amount),
+    //     created_at=arc4.UInt64(Global.round),
+    //     lock_until=arc4.UInt64(Global.round + duration),
+    //     status=arc4.UInt8(PENDING),
+    //     invest_eligible=arc4.Bool(eligible),
+    //     yield_earned=arc4.UInt64(0),
+    // )
+    dig 8
+    dig 11
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    // smart_contracts/cadencia_escrow/contract.py:83
+    // status=arc4.UInt8(PENDING),
+    bytec_0 // 0x00
+    // smart_contracts/cadencia_escrow/contract.py:77-86
+    // self.orders[order_id] = OrderRecord(
+    //     buyer=arc4.Address(pay_txn.sender),
+    //     seller=seller,
+    //     amount=arc4.UInt64(amount),
+    //     created_at=arc4.UInt64(Global.round),
+    //     lock_until=arc4.UInt64(Global.round + duration),
+    //     status=arc4.UInt8(PENDING),
+    //     invest_eligible=arc4.Bool(eligible),
+    //     yield_earned=arc4.UInt64(0),
+    // )
+    concat
+    swap
+    concat
+    // smart_contracts/cadencia_escrow/contract.py:85
+    // yield_earned=arc4.UInt64(0),
+    pushbytes 0x0000000000000000
+    // smart_contracts/cadencia_escrow/contract.py:77-86
+    // self.orders[order_id] = OrderRecord(
+    //     buyer=arc4.Address(pay_txn.sender),
+    //     seller=seller,
+    //     amount=arc4.UInt64(amount),
+    //     created_at=arc4.UInt64(Global.round),
+    //     lock_until=arc4.UInt64(Global.round + duration),
+    //     status=arc4.UInt8(PENDING),
+    //     invest_eligible=arc4.Bool(eligible),
+    //     yield_earned=arc4.UInt64(0),
+    // )
+    concat
+    dig 4
+    swap
+    box_put
+    // smart_contracts/cadencia_escrow/contract.py:87
+    // self.total_locked += amount
+    intc_0 // 0
+    bytec_2 // "total_locked"
+    app_global_get_ex
+    assert // check self.total_locked exists
+    +
+    bytec_2 // "total_locked"
+    swap
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:88
+    // self.total_orders += UInt64(1)
+    intc_0 // 0
+    bytec 9 // "total_orders"
+    app_global_get_ex
+    assert // check self.total_orders exists
+    intc_1 // 1
+    +
+    bytec 9 // "total_orders"
+    swap
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:89
+    // self.active_orders += UInt64(1)
+    intc_0 // 0
+    bytec_3 // "active_orders"
+    app_global_get_ex
+    assert // check self.active_orders exists
+    intc_1 // 1
+    +
+    bytec_3 // "active_orders"
+    swap
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:56
+    // @arc4.abimethod()
+    intc_1 // 1
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.mark_invested[routing]() -> void:
+mark_invested:
+    // smart_contracts/cadencia_escrow/contract.py:91
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/cadencia_escrow/contract.py:93
+    // assert Txn.sender == self.treasury_address, "UNAUTHORIZED"
+    txn Sender
+    intc_0 // 0
+    bytec 5 // "treasury_address"
+    app_global_get_ex
+    assert // check self.treasury_address exists
+    ==
+    assert // UNAUTHORIZED
+    // smart_contracts/cadencia_escrow/contract.py:94
+    // assert order_id in self.orders, "ORDER_NOT_FOUND"
+    bytec 4 // "orders"
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    assert // ORDER_NOT_FOUND
+    // smart_contracts/cadencia_escrow/contract.py:95
+    // order = self.orders[order_id].copy()
+    dup
+    box_get
+    pop
+    // smart_contracts/cadencia_escrow/contract.py:96
+    // assert order.status == arc4.UInt8(PENDING), "INVALID_STATUS"
+    dup
+    extract 88 1
+    bytec_0 // 0x00
+    b==
+    assert // INVALID_STATUS
+    // smart_contracts/cadencia_escrow/contract.py:97
+    // assert order.invest_eligible == arc4.Bool(True), "NOT_ELIGIBLE"
+    dup
+    intc 4 // 712
+    getbit
+    bytec_0 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    dup
+    pushbytes 0x80
+    ==
+    assert // NOT_ELIGIBLE
+    // smart_contracts/cadencia_escrow/contract.py:99
+    // buyer=order.buyer, seller=order.seller, amount=order.amount,
+    dig 1
+    extract 0 32
+    dig 2
+    extract 32 32
+    dig 3
+    extract 64 8
+    // smart_contracts/cadencia_escrow/contract.py:100
+    // created_at=order.created_at, lock_until=order.lock_until,
+    dig 4
+    extract 72 8
+    dig 5
+    extract 80 8
+    // smart_contracts/cadencia_escrow/contract.py:102
+    // invest_eligible=order.invest_eligible, yield_earned=order.yield_earned,
+    uncover 6
+    extract 90 8
+    // smart_contracts/cadencia_escrow/contract.py:98-103
+    // self.orders[order_id] = OrderRecord(
+    //     buyer=order.buyer, seller=order.seller, amount=order.amount,
+    //     created_at=order.created_at, lock_until=order.lock_until,
+    //     status=arc4.UInt8(INVESTED),
+    //     invest_eligible=order.invest_eligible, yield_earned=order.yield_earned,
+    // )
+    uncover 5
+    uncover 5
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    // smart_contracts/cadencia_escrow/contract.py:101
+    // status=arc4.UInt8(INVESTED),
+    pushbytes 0x01
+    // smart_contracts/cadencia_escrow/contract.py:98-103
+    // self.orders[order_id] = OrderRecord(
+    //     buyer=order.buyer, seller=order.seller, amount=order.amount,
+    //     created_at=order.created_at, lock_until=order.lock_until,
+    //     status=arc4.UInt8(INVESTED),
+    //     invest_eligible=order.invest_eligible, yield_earned=order.yield_earned,
+    // )
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    box_put
+    // smart_contracts/cadencia_escrow/contract.py:91
+    // @arc4.abimethod()
+    intc_1 // 1
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.mark_redeemed[routing]() -> void:
+mark_redeemed:
+    // smart_contracts/cadencia_escrow/contract.py:105
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/cadencia_escrow/contract.py:107
+    // assert Txn.sender == self.treasury_address, "UNAUTHORIZED"
+    txn Sender
+    intc_0 // 0
+    bytec 5 // "treasury_address"
+    app_global_get_ex
+    assert // check self.treasury_address exists
+    ==
+    assert // UNAUTHORIZED
+    // smart_contracts/cadencia_escrow/contract.py:108
+    // assert order_id in self.orders, "ORDER_NOT_FOUND"
+    bytec 4 // "orders"
+    uncover 2
+    concat
+    dup
+    box_len
+    bury 1
+    assert // ORDER_NOT_FOUND
+    // smart_contracts/cadencia_escrow/contract.py:109
+    // order = self.orders[order_id].copy()
+    dup
+    box_get
+    pop
+    // smart_contracts/cadencia_escrow/contract.py:110
+    // assert order.status == arc4.UInt8(INVESTED), "INVALID_STATUS"
+    dup
+    extract 88 1
+    pushbytes 0x01
+    b==
+    assert // INVALID_STATUS
+    // smart_contracts/cadencia_escrow/contract.py:112
+    // buyer=order.buyer, seller=order.seller, amount=order.amount,
+    dup
+    extract 0 32
+    dig 1
+    extract 32 32
+    dig 2
+    extract 64 8
+    // smart_contracts/cadencia_escrow/contract.py:113
+    // created_at=order.created_at, lock_until=order.lock_until,
+    dig 3
+    extract 72 8
+    dig 4
+    extract 80 8
+    // smart_contracts/cadencia_escrow/contract.py:115
+    // invest_eligible=order.invest_eligible, yield_earned=yield_earned,
+    uncover 5
+    intc 4 // 712
+    getbit
+    bytec_0 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // smart_contracts/cadencia_escrow/contract.py:111-116
+    // self.orders[order_id] = OrderRecord(
+    //     buyer=order.buyer, seller=order.seller, amount=order.amount,
+    //     created_at=order.created_at, lock_until=order.lock_until,
+    //     status=arc4.UInt8(REDEEMED),
+    //     invest_eligible=order.invest_eligible, yield_earned=yield_earned,
+    // )
+    uncover 5
+    uncover 5
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    // smart_contracts/cadencia_escrow/contract.py:114
+    // status=arc4.UInt8(REDEEMED),
+    bytec 12 // 0x02
+    // smart_contracts/cadencia_escrow/contract.py:111-116
+    // self.orders[order_id] = OrderRecord(
+    //     buyer=order.buyer, seller=order.seller, amount=order.amount,
+    //     created_at=order.created_at, lock_until=order.lock_until,
+    //     status=arc4.UInt8(REDEEMED),
+    //     invest_eligible=order.invest_eligible, yield_earned=yield_earned,
+    // )
+    concat
+    swap
+    concat
+    uncover 2
+    concat
+    box_put
+    // smart_contracts/cadencia_escrow/contract.py:105
+    // @arc4.abimethod()
+    intc_1 // 1
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.complete_order[routing]() -> void:
+complete_order:
+    pushbytes ""
+    // smart_contracts/cadencia_escrow/contract.py:118
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/cadencia_escrow/contract.py:120
+    // assert Txn.sender == self.admin, "UNAUTHORIZED"
+    txn Sender
+    intc_0 // 0
+    bytec_1 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // UNAUTHORIZED
+    // smart_contracts/cadencia_escrow/contract.py:121
+    // assert order_id in self.orders, "ORDER_NOT_FOUND"
+    bytec 4 // "orders"
+    swap
+    concat
+    dupn 2
+    box_len
+    bury 1
+    assert // ORDER_NOT_FOUND
+    // smart_contracts/cadencia_escrow/contract.py:122
+    // order = self.orders[order_id].copy()
+    box_get
+    pop
+    dup
+    // smart_contracts/cadencia_escrow/contract.py:124
+    // if order.invest_eligible == arc4.Bool(False):
+    intc 4 // 712
+    getbit
+    bytec_0 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    dup
+    bytec_0 // 0x00
+    ==
+    bz complete_order_else_body@4
+    // smart_contracts/cadencia_escrow/contract.py:125-126
+    // # Sub-threshold: direct release
+    // assert order.status == arc4.UInt8(PENDING), "INVALID_STATUS"
+    dig 1
+    dup
+    extract 88 1
+    bytec_0 // 0x00
+    b==
+    assert // INVALID_STATUS
+    // smart_contracts/cadencia_escrow/contract.py:127-131
+    // itxn.Payment(
+    //     receiver=order.seller.native,
+    //     amount=order.amount.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_begin
+    // smart_contracts/cadencia_escrow/contract.py:128
+    // receiver=order.seller.native,
+    dup
+    extract 32 32
+    // smart_contracts/cadencia_escrow/contract.py:129
+    // amount=order.amount.native,
+    swap
+    intc_3 // 64
+    extract_uint64
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/cadencia_escrow/contract.py:127
+    // itxn.Payment(
+    intc_1 // pay
+    itxn_field TypeEnum
+    // smart_contracts/cadencia_escrow/contract.py:130
+    // fee=UInt64(0),
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/cadencia_escrow/contract.py:127-131
+    // itxn.Payment(
+    //     receiver=order.seller.native,
+    //     amount=order.amount.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_submit
+
+complete_order_after_if_else@9:
+    // smart_contracts/cadencia_escrow/contract.py:148
+    // buyer=order.buyer, seller=order.seller, amount=order.amount,
+    dig 1
+    dup
+    extract 0 32
+    dig 1
+    extract 32 32
+    dig 2
+    extract 64 8
+    // smart_contracts/cadencia_escrow/contract.py:149
+    // created_at=order.created_at, lock_until=order.lock_until,
+    dig 3
+    extract 72 8
+    dig 4
+    extract 80 8
+    // smart_contracts/cadencia_escrow/contract.py:151
+    // invest_eligible=order.invest_eligible, yield_earned=order.yield_earned,
+    dig 5
+    extract 90 8
+    // smart_contracts/cadencia_escrow/contract.py:147-152
+    // self.orders[order_id] = OrderRecord(
+    //     buyer=order.buyer, seller=order.seller, amount=order.amount,
+    //     created_at=order.created_at, lock_until=order.lock_until,
+    //     status=arc4.UInt8(COMPLETED),
+    //     invest_eligible=order.invest_eligible, yield_earned=order.yield_earned,
+    // )
+    uncover 5
+    uncover 5
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    // smart_contracts/cadencia_escrow/contract.py:150
+    // status=arc4.UInt8(COMPLETED),
+    pushbytes 0x03
+    // smart_contracts/cadencia_escrow/contract.py:147-152
+    // self.orders[order_id] = OrderRecord(
+    //     buyer=order.buyer, seller=order.seller, amount=order.amount,
+    //     created_at=order.created_at, lock_until=order.lock_until,
+    //     status=arc4.UInt8(COMPLETED),
+    //     invest_eligible=order.invest_eligible, yield_earned=order.yield_earned,
+    // )
+    concat
+    dig 3
+    concat
+    swap
+    concat
+    dig 4
+    swap
+    box_put
+    // smart_contracts/cadencia_escrow/contract.py:153
+    // self.total_locked -= order.amount.native
+    intc_0 // 0
+    bytec_2 // "total_locked"
+    app_global_get_ex
+    assert // check self.total_locked exists
+    swap
+    // smart_contracts/cadencia_escrow/contract.py:148
+    // buyer=order.buyer, seller=order.seller, amount=order.amount,
+    intc_3 // 64
+    // smart_contracts/cadencia_escrow/contract.py:153
+    // self.total_locked -= order.amount.native
+    extract_uint64
+    swap
+    dig 1
+    -
+    bytec_2 // "total_locked"
+    swap
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:154
+    // self.active_orders -= UInt64(1)
+    intc_0 // 0
+    bytec_3 // "active_orders"
+    app_global_get_ex
+    assert // check self.active_orders exists
+    intc_1 // 1
+    -
+    bytec_3 // "active_orders"
+    swap
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:155
+    // self.total_released += order.amount.native
+    intc_0 // 0
+    bytec 8 // "total_released"
+    app_global_get_ex
+    assert // check self.total_released exists
+    +
+    bytec 8 // "total_released"
+    swap
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:118
+    // @arc4.abimethod()
+    intc_1 // 1
+    return
+
+complete_order_else_body@4:
+    // smart_contracts/cadencia_escrow/contract.py:133-134
+    // # Was invested: must be redeemed first
+    // assert order.status == arc4.UInt8(REDEEMED), "STILL_INVESTED"
+    dig 1
+    dup
+    extract 88 1
+    bytec 12 // 0x02
+    b==
+    assert // STILL_INVESTED
+    // smart_contracts/cadencia_escrow/contract.py:135-139
+    // itxn.Payment(
+    //     receiver=order.seller.native,
+    //     amount=order.amount.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_begin
+    // smart_contracts/cadencia_escrow/contract.py:136
+    // receiver=order.seller.native,
+    dup
+    extract 32 32
+    // smart_contracts/cadencia_escrow/contract.py:137
+    // amount=order.amount.native,
+    dig 1
+    intc_3 // 64
+    extract_uint64
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/cadencia_escrow/contract.py:135
+    // itxn.Payment(
+    intc_1 // pay
+    itxn_field TypeEnum
+    // smart_contracts/cadencia_escrow/contract.py:138
+    // fee=UInt64(0),
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/cadencia_escrow/contract.py:135-139
+    // itxn.Payment(
+    //     receiver=order.seller.native,
+    //     amount=order.amount.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_submit
+    // smart_contracts/cadencia_escrow/contract.py:140
+    // if order.yield_earned.native > UInt64(0):
+    pushint 90
+    extract_uint64
+    dup
+    bury 5
+    bz complete_order_after_if_else@9
+    // smart_contracts/cadencia_escrow/contract.py:141-145
+    // itxn.Payment(
+    //     receiver=self.platform_wallet,
+    //     amount=order.yield_earned.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_begin
+    // smart_contracts/cadencia_escrow/contract.py:142
+    // receiver=self.platform_wallet,
+    intc_0 // 0
+    bytec 7 // "platform_wallet"
+    app_global_get_ex
+    assert // check self.platform_wallet exists
+    dig 4
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/cadencia_escrow/contract.py:141
+    // itxn.Payment(
+    intc_1 // pay
+    itxn_field TypeEnum
+    // smart_contracts/cadencia_escrow/contract.py:144
+    // fee=UInt64(0),
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/cadencia_escrow/contract.py:141-145
+    // itxn.Payment(
+    //     receiver=self.platform_wallet,
+    //     amount=order.yield_earned.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_submit
+    b complete_order_after_if_else@9
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.cancel_order[routing]() -> void:
+cancel_order:
+    intc_0 // 0
+    pushbytes ""
+    // smart_contracts/cadencia_escrow/contract.py:157
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/cadencia_escrow/contract.py:159
+    // assert order_id in self.orders, "ORDER_NOT_FOUND"
+    bytec 4 // "orders"
+    swap
+    concat
+    dupn 2
+    box_len
+    bury 1
+    assert // ORDER_NOT_FOUND
+    // smart_contracts/cadencia_escrow/contract.py:160
+    // order = self.orders[order_id].copy()
+    box_get
+    pop
+    // smart_contracts/cadencia_escrow/contract.py:161
+    // assert Txn.sender == self.admin or Txn.sender == order.buyer.native, "UNAUTHORIZED"
+    txn Sender
+    intc_0 // 0
+    bytec_1 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    bnz cancel_order_bool_true@3
+    txn Sender
+    dig 1
+    extract 0 32
+    ==
+    bz cancel_order_bool_false@4
+
+cancel_order_bool_true@3:
+    intc_1 // 1
+
+cancel_order_bool_merge@5:
+    // smart_contracts/cadencia_escrow/contract.py:161
+    // assert Txn.sender == self.admin or Txn.sender == order.buyer.native, "UNAUTHORIZED"
+    assert // UNAUTHORIZED
+    // smart_contracts/cadencia_escrow/contract.py:163
+    // if order.invest_eligible == arc4.Bool(False):
+    dup
+    intc 4 // 712
+    getbit
+    bytec_0 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    dup
+    bury 5
+    bytec_0 // 0x00
+    ==
+    bz cancel_order_else_body@8
+    // smart_contracts/cadencia_escrow/contract.py:164
+    // assert order.status == arc4.UInt8(PENDING), "INVALID_STATUS"
+    dupn 2
+    extract 88 1
+    bytec_0 // 0x00
+    b==
+    assert // INVALID_STATUS
+    // smart_contracts/cadencia_escrow/contract.py:165-169
+    // itxn.Payment(
+    //     receiver=order.buyer.native,
+    //     amount=order.amount.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_begin
+    // smart_contracts/cadencia_escrow/contract.py:166
+    // receiver=order.buyer.native,
+    dup
+    extract 0 32
+    // smart_contracts/cadencia_escrow/contract.py:167
+    // amount=order.amount.native,
+    swap
+    intc_3 // 64
+    extract_uint64
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/cadencia_escrow/contract.py:165
+    // itxn.Payment(
+    intc_1 // pay
+    itxn_field TypeEnum
+    // smart_contracts/cadencia_escrow/contract.py:168
+    // fee=UInt64(0),
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/cadencia_escrow/contract.py:165-169
+    // itxn.Payment(
+    //     receiver=order.buyer.native,
+    //     amount=order.amount.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_submit
+
+cancel_order_after_if_else@13:
+    // smart_contracts/cadencia_escrow/contract.py:185
+    // buyer=order.buyer, seller=order.seller, amount=order.amount,
+    dupn 2
+    extract 0 32
+    dig 1
+    extract 32 32
+    dig 2
+    extract 64 8
+    // smart_contracts/cadencia_escrow/contract.py:186
+    // created_at=order.created_at, lock_until=order.lock_until,
+    dig 3
+    extract 72 8
+    dig 4
+    extract 80 8
+    // smart_contracts/cadencia_escrow/contract.py:188
+    // invest_eligible=order.invest_eligible, yield_earned=order.yield_earned,
+    dig 5
+    extract 90 8
+    // smart_contracts/cadencia_escrow/contract.py:184-189
+    // self.orders[order_id] = OrderRecord(
+    //     buyer=order.buyer, seller=order.seller, amount=order.amount,
+    //     created_at=order.created_at, lock_until=order.lock_until,
+    //     status=arc4.UInt8(CANCELLED),
+    //     invest_eligible=order.invest_eligible, yield_earned=order.yield_earned,
+    // )
+    uncover 5
+    uncover 5
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    // smart_contracts/cadencia_escrow/contract.py:187
+    // status=arc4.UInt8(CANCELLED),
+    pushbytes 0x04
+    // smart_contracts/cadencia_escrow/contract.py:184-189
+    // self.orders[order_id] = OrderRecord(
+    //     buyer=order.buyer, seller=order.seller, amount=order.amount,
+    //     created_at=order.created_at, lock_until=order.lock_until,
+    //     status=arc4.UInt8(CANCELLED),
+    //     invest_eligible=order.invest_eligible, yield_earned=order.yield_earned,
+    // )
+    concat
+    dig 6
+    concat
+    swap
+    concat
+    dig 3
+    swap
+    box_put
+    // smart_contracts/cadencia_escrow/contract.py:190
+    // self.total_locked -= order.amount.native
+    intc_0 // 0
+    bytec_2 // "total_locked"
+    app_global_get_ex
+    assert // check self.total_locked exists
+    swap
+    // smart_contracts/cadencia_escrow/contract.py:185
+    // buyer=order.buyer, seller=order.seller, amount=order.amount,
+    intc_3 // 64
+    // smart_contracts/cadencia_escrow/contract.py:190
+    // self.total_locked -= order.amount.native
+    extract_uint64
+    -
+    bytec_2 // "total_locked"
+    swap
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:191
+    // self.active_orders -= UInt64(1)
+    intc_0 // 0
+    bytec_3 // "active_orders"
+    app_global_get_ex
+    assert // check self.active_orders exists
+    intc_1 // 1
+    -
+    bytec_3 // "active_orders"
+    swap
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:157
+    // @arc4.abimethod()
+    intc_1 // 1
+    return
+
+cancel_order_else_body@8:
+    // smart_contracts/cadencia_escrow/contract.py:171
+    // assert order.status == arc4.UInt8(REDEEMED), "STILL_INVESTED"
+    dupn 2
+    extract 88 1
+    bytec 12 // 0x02
+    b==
+    assert // STILL_INVESTED
+    // smart_contracts/cadencia_escrow/contract.py:172-176
+    // itxn.Payment(
+    //     receiver=order.buyer.native,
+    //     amount=order.amount.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_begin
+    // smart_contracts/cadencia_escrow/contract.py:173
+    // receiver=order.buyer.native,
+    dup
+    extract 0 32
+    // smart_contracts/cadencia_escrow/contract.py:174
+    // amount=order.amount.native,
+    dig 1
+    intc_3 // 64
+    extract_uint64
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/cadencia_escrow/contract.py:172
+    // itxn.Payment(
+    intc_1 // pay
+    itxn_field TypeEnum
+    // smart_contracts/cadencia_escrow/contract.py:175
+    // fee=UInt64(0),
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/cadencia_escrow/contract.py:172-176
+    // itxn.Payment(
+    //     receiver=order.buyer.native,
+    //     amount=order.amount.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_submit
+    // smart_contracts/cadencia_escrow/contract.py:177
+    // if order.yield_earned.native > UInt64(0):
+    pushint 90
+    extract_uint64
+    dup
+    bury 4
+    bz cancel_order_after_if_else@13
+    // smart_contracts/cadencia_escrow/contract.py:178-182
+    // itxn.Payment(
+    //     receiver=self.platform_wallet,
+    //     amount=order.yield_earned.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_begin
+    // smart_contracts/cadencia_escrow/contract.py:179
+    // receiver=self.platform_wallet,
+    intc_0 // 0
+    bytec 7 // "platform_wallet"
+    app_global_get_ex
+    assert // check self.platform_wallet exists
+    dig 3
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/cadencia_escrow/contract.py:178
+    // itxn.Payment(
+    intc_1 // pay
+    itxn_field TypeEnum
+    // smart_contracts/cadencia_escrow/contract.py:181
+    // fee=UInt64(0),
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/cadencia_escrow/contract.py:178-182
+    // itxn.Payment(
+    //     receiver=self.platform_wallet,
+    //     amount=order.yield_earned.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_submit
+    b cancel_order_after_if_else@13
+
+cancel_order_bool_false@4:
+    intc_0 // 0
+    b cancel_order_bool_merge@5
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.transfer_to_treasury[routing]() -> void:
+transfer_to_treasury:
+    // smart_contracts/cadencia_escrow/contract.py:195
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/cadencia_escrow/contract.py:198
+    // assert Txn.sender == self.treasury_address, "UNAUTHORIZED"
+    txn Sender
+    intc_0 // 0
+    bytec 5 // "treasury_address"
+    app_global_get_ex
+    assert // check self.treasury_address exists
+    swap
+    dig 1
+    ==
+    assert // UNAUTHORIZED
+    // smart_contracts/cadencia_escrow/contract.py:199
+    // assert order_id in self.orders, "ORDER_NOT_FOUND"
+    bytec 4 // "orders"
+    uncover 2
+    concat
+    dup
+    box_len
+    bury 1
+    assert // ORDER_NOT_FOUND
+    // smart_contracts/cadencia_escrow/contract.py:200
+    // order = self.orders[order_id].copy()
+    box_get
+    pop
+    // smart_contracts/cadencia_escrow/contract.py:201
+    // assert order.status == arc4.UInt8(PENDING), "INVALID_STATUS"
+    dup
+    extract 88 1
+    bytec_0 // 0x00
+    b==
+    assert // INVALID_STATUS
+    // smart_contracts/cadencia_escrow/contract.py:202
+    // assert order.invest_eligible == arc4.Bool(True), "NOT_ELIGIBLE"
+    dup
+    intc 4 // 712
+    getbit
+    bytec_0 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    pushbytes 0x80
+    ==
+    assert // NOT_ELIGIBLE
+    // smart_contracts/cadencia_escrow/contract.py:203-207
+    // itxn.Payment(
+    //     receiver=self.treasury_address,
+    //     amount=order.amount.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_begin
+    // smart_contracts/cadencia_escrow/contract.py:205
+    // amount=order.amount.native,
+    intc_3 // 64
+    extract_uint64
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/cadencia_escrow/contract.py:203
+    // itxn.Payment(
+    intc_1 // pay
+    itxn_field TypeEnum
+    // smart_contracts/cadencia_escrow/contract.py:206
+    // fee=UInt64(0),
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/cadencia_escrow/contract.py:203-207
+    // itxn.Payment(
+    //     receiver=self.treasury_address,
+    //     amount=order.amount.native,
+    //     fee=UInt64(0),
+    // ).submit()
+    itxn_submit
+    // smart_contracts/cadencia_escrow/contract.py:195
+    // @arc4.abimethod()
+    intc_1 // 1
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.receive_from_treasury[routing]() -> void:
+receive_from_treasury:
+    // smart_contracts/cadencia_escrow/contract.py:209
+    // @arc4.abimethod()
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/cadencia_escrow/contract.py:212
+    // assert Txn.sender == self.treasury_address, "UNAUTHORIZED"
+    txn Sender
+    intc_0 // 0
+    bytec 5 // "treasury_address"
+    app_global_get_ex
+    assert // check self.treasury_address exists
+    ==
+    assert // UNAUTHORIZED
+    // smart_contracts/cadencia_escrow/contract.py:213
+    // assert pay_txn.receiver == Global.current_application_address, "INVALID_PAYMENT"
+    swap
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert // INVALID_PAYMENT
+    // smart_contracts/cadencia_escrow/contract.py:214
+    // assert order_id in self.orders, "ORDER_NOT_FOUND"
+    bytec 4 // "orders"
+    swap
+    concat
+    box_len
+    bury 1
+    assert // ORDER_NOT_FOUND
+    // smart_contracts/cadencia_escrow/contract.py:209
+    // @arc4.abimethod()
+    intc_1 // 1
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.get_order[routing]() -> void:
+get_order:
+    // smart_contracts/cadencia_escrow/contract.py:218
+    // @arc4.abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/cadencia_escrow/contract.py:220
+    // assert order_id in self.orders, "ORDER_NOT_FOUND"
+    bytec 4 // "orders"
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    assert // ORDER_NOT_FOUND
+    // smart_contracts/cadencia_escrow/contract.py:221
+    // return self.orders[order_id].copy()
+    box_get
+    pop
+    // smart_contracts/cadencia_escrow/contract.py:218
+    // @arc4.abimethod(readonly=True)
+    bytec 13 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.get_escrow_stats[routing]() -> void:
+get_escrow_stats:
+    // smart_contracts/cadencia_escrow/contract.py:226
+    // total_locked=arc4.UInt64(self.total_locked),
+    intc_0 // 0
+    bytec_2 // "total_locked"
+    app_global_get_ex
+    assert // check self.total_locked exists
+    itob
+    // smart_contracts/cadencia_escrow/contract.py:227
+    // total_released=arc4.UInt64(self.total_released),
+    intc_0 // 0
+    bytec 8 // "total_released"
+    app_global_get_ex
+    assert // check self.total_released exists
+    itob
+    // smart_contracts/cadencia_escrow/contract.py:228
+    // total_orders=arc4.UInt64(self.total_orders),
+    intc_0 // 0
+    bytec 9 // "total_orders"
+    app_global_get_ex
+    assert // check self.total_orders exists
+    itob
+    // smart_contracts/cadencia_escrow/contract.py:229
+    // active_orders=arc4.UInt64(self.active_orders),
+    intc_0 // 0
+    bytec_3 // "active_orders"
+    app_global_get_ex
+    assert // check self.active_orders exists
+    itob
+    // smart_contracts/cadencia_escrow/contract.py:225-230
+    // return EscrowStats(
+    //     total_locked=arc4.UInt64(self.total_locked),
+    //     total_released=arc4.UInt64(self.total_released),
+    //     total_orders=arc4.UInt64(self.total_orders),
+    //     active_orders=arc4.UInt64(self.active_orders),
+    // )
+    uncover 3
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    // smart_contracts/cadencia_escrow/contract.py:223
+    // @arc4.abimethod(readonly=True)
+    bytec 13 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.is_paused[routing]() -> void:
+is_paused:
+    // smart_contracts/cadencia_escrow/contract.py:234
+    // return arc4.Bool(self.paused == UInt64(1))
+    intc_0 // 0
+    bytec 6 // "paused"
+    app_global_get_ex
+    assert // check self.paused exists
+    intc_1 // 1
+    ==
+    bytec_0 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // smart_contracts/cadencia_escrow/contract.py:232
+    // @arc4.abimethod(readonly=True)
+    bytec 13 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.set_treasury[routing]() -> void:
+set_treasury:
+    // smart_contracts/cadencia_escrow/contract.py:238
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/cadencia_escrow/contract.py:240
+    // assert Txn.sender == self.admin, "UNAUTHORIZED"
+    txn Sender
+    intc_0 // 0
+    bytec_1 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // UNAUTHORIZED
+    // smart_contracts/cadencia_escrow/contract.py:241
+    // self.treasury_app_id = app_id.native
+    swap
+    btoi
+    bytec 14 // "treasury_app_id"
+    swap
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:242
+    // self.treasury_address = address.native
+    bytec 5 // "treasury_address"
+    swap
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:238
+    // @arc4.abimethod()
+    intc_1 // 1
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.set_platform_wallet[routing]() -> void:
+set_platform_wallet:
+    // smart_contracts/cadencia_escrow/contract.py:244
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/cadencia_escrow/contract.py:246
+    // assert Txn.sender == self.admin, "UNAUTHORIZED"
+    txn Sender
+    intc_0 // 0
+    bytec_1 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // UNAUTHORIZED
+    // smart_contracts/cadencia_escrow/contract.py:247
+    // self.platform_wallet = address.native
+    bytec 7 // "platform_wallet"
+    swap
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:244
+    // @arc4.abimethod()
+    intc_1 // 1
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.set_min_order[routing]() -> void:
+set_min_order:
+    // smart_contracts/cadencia_escrow/contract.py:249
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/cadencia_escrow/contract.py:251
+    // assert Txn.sender == self.admin, "UNAUTHORIZED"
+    txn Sender
+    intc_0 // 0
+    bytec_1 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // UNAUTHORIZED
+    // smart_contracts/cadencia_escrow/contract.py:252
+    // self.min_order_amount = amount.native
+    btoi
+    bytec 10 // "min_order_amount"
+    swap
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:249
+    // @arc4.abimethod()
+    intc_1 // 1
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.set_default_lock[routing]() -> void:
+set_default_lock:
+    // smart_contracts/cadencia_escrow/contract.py:254
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/cadencia_escrow/contract.py:256
+    // assert Txn.sender == self.admin, "UNAUTHORIZED"
+    txn Sender
+    intc_0 // 0
+    bytec_1 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // UNAUTHORIZED
+    // smart_contracts/cadencia_escrow/contract.py:257
+    // self.default_lock_duration = duration.native
+    btoi
+    bytec 11 // "default_lock_duration"
+    swap
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:254
+    // @arc4.abimethod()
+    intc_1 // 1
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.pause[routing]() -> void:
+pause:
+    // smart_contracts/cadencia_escrow/contract.py:261
+    // assert Txn.sender == self.admin, "UNAUTHORIZED"
+    txn Sender
+    intc_0 // 0
+    bytec_1 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // UNAUTHORIZED
+    // smart_contracts/cadencia_escrow/contract.py:262
+    // self.paused = UInt64(1)
+    bytec 6 // "paused"
+    intc_1 // 1
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:259
+    // @arc4.abimethod()
+    intc_1 // 1
+    return
+
+
+// smart_contracts.cadencia_escrow.contract.CadenciaEscrow.unpause[routing]() -> void:
+unpause:
+    // smart_contracts/cadencia_escrow/contract.py:266
+    // assert Txn.sender == self.admin, "UNAUTHORIZED"
+    txn Sender
+    intc_0 // 0
+    bytec_1 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // UNAUTHORIZED
+    // smart_contracts/cadencia_escrow/contract.py:267
+    // self.paused = UInt64(0)
+    bytec 6 // "paused"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/cadencia_escrow/contract.py:264
+    // @arc4.abimethod()
+    intc_1 // 1
+    return

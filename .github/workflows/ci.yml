@@ -1,0 +1,214 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  # ── Frontend ──────────────────────────────────────────────────
+  frontend:
+    name: Frontend — typecheck & lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript typecheck
+        run: npx tsc --noEmit
+
+      - name: ESLint
+        run: npm run lint
+
+  # ── Backend ───────────────────────────────────────────────────
+  backend:
+    name: Backend — typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript typecheck
+        run: npx tsc --noEmit
+
+  # ── Orchestrator ──────────────────────────────────────────────
+  orchestrator:
+    name: Orchestrator — typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: orchestrator
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: orchestrator/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript typecheck
+        run: npx tsc --noEmit
+
+  # ── Smart Contracts (Python) ──────────────────────────────────
+  contracts:
+    name: Smart Contracts — Python lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Ruff lint
+        run: |
+          pip install ruff
+          ruff check smart_contracts/ scripts/
+
+  # ── E2E (only on push to main, not on PRs) ───────────────────
+  e2e:
+    name: E2E — full flow smoke test
+    runs-on: ubuntu-latest
+    needs: [frontend, backend, orchestrator]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    env:
+      # Injected from GitHub repo secrets
+      ALGOD_SERVER: https://testnet-api.algonode.cloud
+      ALGOD_PORT: "443"
+      ALGOD_TOKEN: ""
+      INDEXER_SERVER: https://testnet-idx.algonode.cloud
+      INDEXER_PORT: "443"
+      DEPLOYER_MNEMONIC: ${{ secrets.DEPLOYER_MNEMONIC }}
+      ORCHESTRATOR_MNEMONIC: ${{ secrets.ORCHESTRATOR_MNEMONIC }}
+      PLATFORM_WALLET_ADDRESS: ${{ secrets.PLATFORM_WALLET_ADDRESS }}
+      ESCROW_APP_ID: ${{ secrets.ESCROW_APP_ID }}
+      TBILL_APP_ID: ${{ secrets.TBILL_APP_ID }}
+      TBILL_1D_ASA: ${{ secrets.TBILL_1D_ASA }}
+      TBILL_3D_ASA: ${{ secrets.TBILL_3D_ASA }}
+      TBILL_7D_ASA: ${{ secrets.TBILL_7D_ASA }}
+      TBILL_14D_ASA: ${{ secrets.TBILL_14D_ASA }}
+      TBILL_30D_ASA: ${{ secrets.TBILL_30D_ASA }}
+      TBILL_60D_ASA: ${{ secrets.TBILL_60D_ASA }}
+      TBILL_90D_ASA: ${{ secrets.TBILL_90D_ASA }}
+      BACKEND_PORT: "3001"
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+      ADMIN_API_KEY: ${{ secrets.ADMIN_API_KEY }}
+      FRONTEND_URL: http://localhost:5173
+      MIN_ORDER_AMOUNT_MICROALGO: "5000000"
+      POLL_INTERVAL_MS: "30000"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Write .env
+        run: |
+          cat << 'EOF' > .env
+          ALGOD_SERVER=${{ env.ALGOD_SERVER }}
+          ALGOD_PORT=${{ env.ALGOD_PORT }}
+          ALGOD_TOKEN=
+          INDEXER_SERVER=${{ env.INDEXER_SERVER }}
+          INDEXER_PORT=${{ env.INDEXER_PORT }}
+          DEPLOYER_MNEMONIC=${{ secrets.DEPLOYER_MNEMONIC }}
+          ORCHESTRATOR_MNEMONIC=${{ secrets.ORCHESTRATOR_MNEMONIC }}
+          PLATFORM_WALLET_ADDRESS=${{ secrets.PLATFORM_WALLET_ADDRESS }}
+          ESCROW_APP_ID=${{ secrets.ESCROW_APP_ID }}
+          TBILL_APP_ID=${{ secrets.TBILL_APP_ID }}
+          TBILL_1D_ASA=${{ secrets.TBILL_1D_ASA }}
+          TBILL_3D_ASA=${{ secrets.TBILL_3D_ASA }}
+          TBILL_7D_ASA=${{ secrets.TBILL_7D_ASA }}
+          TBILL_14D_ASA=${{ secrets.TBILL_14D_ASA }}
+          TBILL_30D_ASA=${{ secrets.TBILL_30D_ASA }}
+          TBILL_60D_ASA=${{ secrets.TBILL_60D_ASA }}
+          TBILL_90D_ASA=${{ secrets.TBILL_90D_ASA }}
+          BACKEND_PORT=3001
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }}
+          ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+          ADMIN_API_KEY=${{ secrets.ADMIN_API_KEY }}
+          FRONTEND_URL=http://localhost:5173
+          MIN_ORDER_AMOUNT_MICROALGO=5000000
+          POLL_INTERVAL_MS=30000
+          EOF
+
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+
+      - name: Install backend deps
+        run: npm ci
+        working-directory: backend
+
+      - name: Install orchestrator deps
+        run: npm ci
+        working-directory: orchestrator
+
+      - name: Start backend
+        run: npx tsx src/index.ts &
+        working-directory: backend
+
+      - name: Start orchestrator
+        run: npx ts-node src/index.ts &
+        working-directory: orchestrator
+
+      - name: Wait for backend to be ready
+        run: |
+          for i in $(seq 1 15); do
+            curl -sf http://localhost:3001/health && break
+            echo "Waiting for backend... ($i)"
+            sleep 2
+          done
+
+      - name: Run E2E test (1D tier, 10 ALGO)
+        run: python scripts/test_full_flow.py --tier 1 --amount 10
+        timeout-minutes: 10

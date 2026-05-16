@@ -1,0 +1,21 @@
+{
+  "name": "cadencia-treasury-orchestrator",
+  "version": "1.0.0",
+  "description": "Cadencia Treasury Orchestrator - Automated yield engine",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/index.ts",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.4",
+    "algosdk": "^3.2.0",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
