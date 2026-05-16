@@ -1,11 +1,22 @@
 {
   "name": "crestflow-platform-combined",
   "private": true,
+  "workspaces": [
+    "backend",
+    "orchestrator"
+  ],
   "scripts": {
     "start": "bun run backend/src/index.ts & bun run orchestrator/src/index.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.105.4",
+    "algosdk": "^3.5.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
     "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
   }
 }
