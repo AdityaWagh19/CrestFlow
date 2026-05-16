@@ -1,0 +1,11 @@
+{
+  "name": "crestflow-platform-combined",
+  "private": true,
+  "scripts": {
+    "start": "bun run backend/src/index.ts & bun run orchestrator/src/index.ts"
+  },
+  "dependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
