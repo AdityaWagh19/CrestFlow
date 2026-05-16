@@ -56,3 +56,5 @@ coverage/
 # ── Local screenshots ────────────────────────────────────────────────────────
 Screenshot*.png
 Screenshot*.jpg
+
+.vercel
