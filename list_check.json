@@ -1,0 +1,148 @@
+[
+  {
+    "workspace": {
+      "id": "846779ef-cc09-412b-8cb0-c69fcf357a1f",
+      "name": "Aditya Wagh's Projects"
+    },
+    "id": "837c03b8-0e72-494b-9e89-da23f96c142f",
+    "name": "hospitable-rebirth",
+    "createdAt": "2026-05-16T17:24:02.687Z",
+    "updatedAt": "2026-05-16T17:24:17.735Z",
+    "deletedAt": null,
+    "environments": {
+      "edges": [
+        {
+          "node": {
+            "id": "1d0b28da-f6b8-4c8b-b461-7c41ec0b192a",
+            "name": "production",
+            "canAccess": true
+          }
+        }
+      ]
+    },
+    "services": {
+      "edges": [
+        {
+          "node": {
+            "id": "2055a9c7-1b28-473c-8163-e823f545351a",
+            "name": "CrestFlow"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "workspace": {
+      "id": "846779ef-cc09-412b-8cb0-c69fcf357a1f",
+      "name": "Aditya Wagh's Projects"
+    },
+    "id": "66bb9c36-6899-4c50-baa3-0fd62b9f4dc1",
+    "name": "crestflow-platform",
+    "createdAt": "2026-05-16T17:16:04.123Z",
+    "updatedAt": "2026-05-16T17:23:55.044Z",
+    "deletedAt": "2026-05-18T17:23:54.971Z",
+    "environments": {
+      "edges": [
+        {
+          "node": {
+            "id": "609751c9-6b53-4582-90a0-d6552f7efce5",
+            "name": "production",
+            "canAccess": true
+          }
+        }
+      ]
+    },
+    "services": {
+      "edges": [
+        {
+          "node": {
+            "id": "92f52c29-a128-4995-bbe2-dcd1493e1093",
+            "name": "backend"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "workspace": {
+      "id": "846779ef-cc09-412b-8cb0-c69fcf357a1f",
+      "name": "Aditya Wagh's Projects"
+    },
+    "id": "ca93fb3a-83d8-4f6a-abd8-5e5f2666cc93",
+    "name": "crestflow",
+    "createdAt": "2026-05-16T16:32:03.814Z",
+    "updatedAt": "2026-05-16T16:45:10.954Z",
+    "deletedAt": "2026-05-18T16:45:10.794Z",
+    "environments": {
+      "edges": [
+        {
+          "node": {
+            "id": "2c039bcc-6cdf-44ad-948e-7d82cf37c23d",
+            "name": "production",
+            "canAccess": true
+          }
+        }
+      ]
+    },
+    "services": {
+      "edges": [
+        {
+          "node": {
+            "id": "7b4c9373-869b-41f2-b7d1-5eb349f70ecf",
+            "name": "backend"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "workspace": {
+      "id": "846779ef-cc09-412b-8cb0-c69fcf357a1f",
+      "name": "Aditya Wagh's Projects"
+    },
+    "id": "44a3a1a0-6442-467d-ac2e-39f46da636d2",
+    "name": "credencia",
+    "createdAt": "2026-05-06T18:44:53.433Z",
+    "updatedAt": "2026-05-06T18:56:21.992Z",
+    "deletedAt": null,
+    "environments": {
+      "edges": [
+        {
+          "node": {
+            "id": "6f4b30bf-c6c9-43c2-b4e5-ec027d6f90f3",
+            "name": "production",
+            "canAccess": true
+          }
+        }
+      ]
+    },
+    "services": {
+      "edges": [
+        {
+          "node": {
+            "id": "3277bb25-66af-4b42-b69d-8792cd606bcc",
+            "name": "credencia-api"
+          }
+        },
+        {
+          "node": {
+            "id": "5e70ebb2-f05e-4bfb-9243-097c35c88151",
+            "name": "Redis"
+          }
+        },
+        {
+          "node": {
+            "id": "7a3ee16a-4c87-4e6e-ab23-b90cee28e8e1",
+            "name": "credencia-job"
+          }
+        },
+        {
+          "node": {
+            "id": "faaa28a1-8b01-4167-b72c-2167d63e55f5",
+            "name": "credencia-oracle"
+          }
+        }
+      ]
+    }
+  }
+]
