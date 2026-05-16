@@ -1,0 +1,32 @@
+name: Orchestrator CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'orchestrator/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'orchestrator/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: orchestrator
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build (Type check)
+        run: bun run build
